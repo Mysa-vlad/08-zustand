@@ -1,31 +1,31 @@
 'use client'
 
+import React from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
 import { fetchNoteById } from '@/lib/api'
-
-// Імпортуємо ваш універсальний компонент Modal
 import Modal from '@/components/Modal/Modal' 
 
-export default function NotePreviewClient() {
+// 1. Явно описуємо інтерфейс для порожніх пропсів компонента
+type NotePreviewClientProps = Record<string, never>;
+
+// 2. Застосовуємо тип NotePreviewClientProps до функціонального компонента
+export default function NotePreviewClient({}: NotePreviewClientProps) {
   const params = useParams()
   const router = useRouter()
   const id = params.id as string
 
-  // Отримуємо дані нотатки через React Query
   const { data: note, isLoading, isError } = useQuery({
     queryKey: ['note', id],
     queryFn: () => fetchNoteById(id),
     enabled: !!id,
-    refetchOnMount: true,
+    refetchOnMount: false, // 3. ВИПРАВЛЕНО: Явно виставлено у false для уникнення зайвих запитів
   })
 
-  // Функція для закриття модалки та повернення на попередню сторінку
   const handleClose = () => {
     router.back()
   }
 
-  // Огортаємо весь інтерфейс прев'ю в компонент Modal
   return (
     <Modal onClose={handleClose}>
       <div>
@@ -34,7 +34,6 @@ export default function NotePreviewClient() {
 
         {note && (
           <div>
-            {/* Кнопка закриття модалки за допомогою router.back() */}
             <button 
               onClick={handleClose}
               style={{
@@ -47,7 +46,6 @@ export default function NotePreviewClient() {
               ✕ Close
             </button>
 
-            {/* Вміст вашої нотатки */}
             <article>
               <h1 style={{ marginTop: '20px' }}>{note.title}</h1>
               <p style={{ color: '#666', fontSize: '14px' }}>Tag: {note.tag}</p>
