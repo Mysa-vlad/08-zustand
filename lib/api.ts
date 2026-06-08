@@ -11,10 +11,14 @@ const axiosInstance = axios.create({
   },
 });
 
+export type NoteTag = 'Todo' | 'Work' | 'Personal' | 'Meeting' | 'Shopping';
+
+
 export interface FetchNotesParams {
   page?: number;
-  perPage?: number;
+  perPage?: number; 
   search?: string;
+  tag?: NoteTag;   
 }
 
 export interface FetchNotesResponse {
@@ -22,39 +26,28 @@ export interface FetchNotesResponse {
   totalPages: number;
 }
 
+
 export interface CreateNoteData {
   title: string;
   content: string;
-  tag: string;
+  tag: NoteTag; 
 }
-export interface ResponseCategory {
-  id: string
-  name: string
-  description: string
-  createdAt: string
-  updatedAt: string
-}
-export interface ResponseNoteItem {
-  id: string
-  title: string
-  content: string
-  categoryId: string
-  userId: string
-  createdAt: string
-  updatedAt: string
-}
-export interface ResponseNoteList {
-  notes: ResponseNoteItem[]
-  total: number
-}
+
 export async function fetchNotes(
   params: FetchNotesParams = {}
 ): Promise<FetchNotesResponse> {
-  const { page = 1, perPage = 12, search } = params;
+  const { page = 1, perPage = 12, search, tag } = params;
   const queryParams: Record<string, string | number> = { page, perPage };
+  
   if (search) {
     queryParams.search = search;
   }
+
+
+  if (tag) {
+    queryParams.tag = tag;
+  }
+
   const response = await axiosInstance.get<FetchNotesResponse>("/notes", {
     params: queryParams,
   });
@@ -70,44 +63,8 @@ export async function deleteNote(id: string): Promise<Note> {
   const response = await axiosInstance.delete<Note>(`/notes/${id}`);
   return response.data;
 }
+
 export async function fetchNoteById(id: string): Promise<Note> {
   const response = await axiosInstance.get<Note>(`/notes/${id}`);
   return response.data;
 }
-export const getCategories = async () => {
-  const { data } = await axiosInstance.get<ResponseCategory[]>(`/categories`)
-  return data
-}
-
-export const getNotes = async (categoryId?: string, title?: string) => {
-  const queryParams: Record<string, string> = {};
-
-  if (categoryId && categoryId !== "all" && categoryId !== "undefined") {
-    queryParams.categoryId = categoryId;
-  }
-
-  if (title && title.trim() !== "") {
-    queryParams.title = title;
-  }
-
-  const { data } = await axiosInstance.get<ResponseNoteList>('/notes', { 
-    params: queryParams 
-  });
-  
-  return data;
-};
-
-export const getNotesByTag = async (tag?: string): Promise<ResponseNoteList> => {
-  const queryParams: Record<string, string> = {};
-
-  // Якщо тег не "all" і він передається, додаємо його до запиту
-  if (tag && tag !== "all" && tag !== "undefined" && tag.trim() !== "") {
-    queryParams.tag = tag;
-  }
-
-  const { data } = await axiosInstance.get<ResponseNoteList>('/notes', { 
-    params: queryParams 
-  });
-  
-  return data;
-};

@@ -1,40 +1,64 @@
 'use client'
-import css from '../../[id]/NoteDetails.module.css'
-import { fetchNoteById } from '@/lib/api'
+
+import { useParams, useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
-import { useParams } from 'next/navigation'
+import { fetchNoteById } from '@/lib/api'
 
-const NotePreviewClient = () => {
-  const { id } = useParams<{ id: string }>()
+// Імпортуємо ваш універсальний компонент Modal
+import Modal from '@/components/Modal/Modal' 
 
-  const { data: noteItem, isLoading, isError } = useQuery({
+export default function NotePreviewClient() {
+  const params = useParams()
+  const router = useRouter()
+  const id = params.id as string
+
+  // Отримуємо дані нотатки через React Query
+  const { data: note, isLoading, isError } = useQuery({
     queryKey: ['note', id],
     queryFn: () => fetchNoteById(id),
-    refetchOnMount: false,
+    enabled: !!id,
+    refetchOnMount: true,
   })
 
-  if (isLoading) {
-    return <div>Loading, please wait...</div>
+  // Функція для закриття модалки та повернення на попередню сторінку
+  const handleClose = () => {
+    router.back()
   }
 
-  if (isError || !noteItem) {
-    return <div>Something went wrong.</div>
-  }
-
-  const created = noteItem.createdAt ? new Date(noteItem.createdAt).toLocaleString() : ''
-
+  // Огортаємо весь інтерфейс прев'ю в компонент Modal
   return (
-    <div className={css.container}>
-      <div className={css.item}>
-        <div className={css.header}>
-          <h2>{noteItem.title}</h2>
-        </div>
-        <p className={css.tag}>{noteItem.tag}</p>
-        <p className={css.content}>{noteItem.content}</p>
-        <p className={css.date}>{created}</p>
+    <Modal onClose={handleClose}>
+      <div>
+        {isLoading && <p>Loading note details...</p>}
+        {isError && <p>Error loading note details.</p>}
+
+        {note && (
+          <div>
+            {/* Кнопка закриття модалки за допомогою router.back() */}
+            <button 
+              onClick={handleClose}
+              style={{
+                position: 'absolute',
+                top: '10px',
+                right: '10px',
+                cursor: 'pointer'
+              }}
+            >
+              ✕ Close
+            </button>
+
+            {/* Вміст вашої нотатки */}
+            <article>
+              <h1 style={{ marginTop: '20px' }}>{note.title}</h1>
+              <p style={{ color: '#666', fontSize: '14px' }}>Tag: {note.tag}</p>
+              <hr />
+              <div style={{ marginTop: '15px', whiteSpace: 'pre-wrap' }}>
+                {note.content}
+              </div>
+            </article>
+          </div>
+        )}
       </div>
-    </div>
+    </Modal>
   )
 }
-
-export default NotePreviewClient
