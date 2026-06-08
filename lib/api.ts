@@ -27,7 +27,26 @@ export interface CreateNoteData {
   content: string;
   tag: string;
 }
-
+export interface ResponseCategory {
+  id: string
+  name: string
+  description: string
+  createdAt: string
+  updatedAt: string
+}
+export interface ResponseNoteItem {
+  id: string
+  title: string
+  content: string
+  categoryId: string
+  userId: string
+  createdAt: string
+  updatedAt: string
+}
+export interface ResponseNoteList {
+  notes: ResponseNoteItem[]
+  total: number
+}
 export async function fetchNotes(
   params: FetchNotesParams = {}
 ): Promise<FetchNotesResponse> {
@@ -55,3 +74,25 @@ export async function fetchNoteById(id: string): Promise<Note> {
   const response = await axiosInstance.get<Note>(`/notes/${id}`);
   return response.data;
 }
+export const getCategories = async () => {
+  const { data } = await axiosInstance.get<ResponseCategory[]>(`/categories`)
+  return data
+}
+
+export const getNotes = async (categoryId?: string, title?: string) => {
+  const queryParams: Record<string, string> = {};
+
+  if (categoryId && categoryId !== "all" && categoryId !== "undefined") {
+    queryParams.categoryId = categoryId;
+  }
+
+  if (title && title.trim() !== "") {
+    queryParams.title = title;
+  }
+
+  const { data } = await axiosInstance.get<ResponseNoteList>('/notes', { 
+    params: queryParams 
+  });
+  
+  return data;
+};
