@@ -27,9 +27,33 @@
 //     </div>
 //   )
 // }
+interface Props {
+  params: Promise<{noteId: string}>
+}
 
-// export default NoteDetailsPage
-
+export const generateMetadata = async ({params}:Props):Promise<Metadata> =>{
+const {noteId} = await params
+const note = await fetchNoteById(noteId)
+  return {
+  title: note.title,
+  description: note.content,
+  openGraph: {
+      title: note.title,
+      description:  note.content,
+      url: `https://notehub.com/`,
+      images: [
+        {
+          url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg',
+          width: 1200,
+          height: 630,
+          alt: 'NoteHub Preview Image',
+        },
+      ],
+    },
+}
+}
+import { fetchNoteById } from '@/lib/api'
+import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 
 const Notes = async () => {

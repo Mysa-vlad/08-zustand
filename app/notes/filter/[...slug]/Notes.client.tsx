@@ -6,10 +6,9 @@ import { fetchNotes, type NoteTag, type FetchNotesResponse } from '@/lib/api'
 import SearchBox from '@/components/SearchBox/SearchBox' 
 import Pagination from '@/components/Pagination/Pagination'
 import NoteList from '@/components/NoteList/NoteList'
-import Modal from '@/components/Modal/Modal'
-import NoteForm from '@/components/NoteForm/NoteForm'
 
 import css from '../../NotesPage.module.css'
+import Link from 'next/link'
 
 interface NotesClientProps {
   tag: string 
@@ -19,7 +18,7 @@ export default function NotesClient({ tag }: NotesClientProps) {
   const [page, setPage] = useState<number>(1)
   const [search, setSearch] = useState<string>('')
   const [debouncedSearch, setDebouncedSearch] = useState<string>('')
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+
 
 
   const [prevTag, setPrevTag] = useState<string>(tag)
@@ -57,12 +56,9 @@ export default function NotesClient({ tag }: NotesClientProps) {
       <div className={css.toolbar}>
         <SearchBox value={search} onChange={setSearch} />
         
-        <button 
-          className={css.button} 
-          onClick={() => setIsModalOpen(true)}
-        >
-          Create Note
-        </button>
+        <Link href="/notes/action/create" className={css.button}>
+          Create Note +
+        </Link>
       </div>
 
       <h2>Notes {tag !== 'all' ? `- ${tag}` : ''}</h2>
@@ -80,11 +76,11 @@ export default function NotesClient({ tag }: NotesClientProps) {
         />
       )}
 
-      {isModalOpen && (
+      {/* {isModalOpen && (
         <Modal onClose={() => setIsModalOpen(false)}>
           <NoteForm onClose={() => setIsModalOpen(false)} />
         </Modal>
-      )}
+      )} */}
     </div>
   )
 }

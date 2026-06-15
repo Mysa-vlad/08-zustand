@@ -1,4 +1,4 @@
-import { Formik, Form, Field, ErrorMessage, type FormikHelpers } from "formik";
+
 import * as Yup from "yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createNote } from "../../lib/api";
@@ -15,19 +15,6 @@ interface NoteFormValues {
   tag: NoteTag;
 }
 
-const validationSchema = Yup.object({
-  title: Yup.string()
-    .min(3, "Title must be at least 3 characters")
-    .max(50, "Title must be at most 50 characters")
-    .required("Title is required"),
-  content: Yup.string().max(500, "Content must be at most 500 characters"),
-  tag: Yup.string()
-    .oneOf(
-      ["Todo", "Work", "Personal", "Meeting", "Shopping"],
-      "Invalid tag"
-    )
-    .required("Tag is required"),
-});
 
 const initialValues: NoteFormValues = {
   title: "",
@@ -46,68 +33,39 @@ export default function NoteForm({ onClose }: NoteFormProps) {
     },
   });
 
-  const handleSubmit = (
-    values: NoteFormValues,
-    { setSubmitting }: FormikHelpers<NoteFormValues>
-  ) => {
-    mutation.mutate(values, {
-      onSettled: () => setSubmitting(false),
-    });
-  };
+
 
   return (
-    <Formik
-      initialValues={initialValues}
-      validationSchema={validationSchema}
-      onSubmit={handleSubmit}
-    >
-      {({ isSubmitting }) => (
-        <Form className={css.form}>
+        <form className={css.form}>
           <div className={css.formGroup}>
             <label htmlFor="title">Title</label>
-            <Field
+            <input
               id="title"
               type="text"
               name="title"
               className={css.input}
             />
-            <ErrorMessage
-              name="title"
-              component="span"
-              className={css.error}
-            />
           </div>
 
           <div className={css.formGroup}>
             <label htmlFor="content">Content</label>
-            <Field
-              as="textarea"
+            <textarea
               id="content"
               name="content"
               rows={8}
               className={css.textarea}
             />
-            <ErrorMessage
-              name="content"
-              component="span"
-              className={css.error}
-            />
           </div>
 
           <div className={css.formGroup}>
             <label htmlFor="tag">Tag</label>
-            <Field as="select" id="tag" name="tag" className={css.select}>
+            <select id="tag" name="tag" className={css.select}>
               <option value="Todo">Todo</option>
               <option value="Work">Work</option>
               <option value="Personal">Personal</option>
               <option value="Meeting">Meeting</option>
               <option value="Shopping">Shopping</option>
-            </Field>
-            <ErrorMessage
-              name="tag"
-              component="span"
-              className={css.error}
-            />
+            </select>
           </div>
 
           <div className={css.actions}>
@@ -121,7 +79,6 @@ export default function NoteForm({ onClose }: NoteFormProps) {
             <button
               type="submit"
               className={css.submitButton}
-              disabled={isSubmitting || mutation.isPending}
             >
               {mutation.isPending ? "Creating..." : "Create note"}
             </button>
@@ -130,8 +87,7 @@ export default function NoteForm({ onClose }: NoteFormProps) {
           {mutation.isError && (
             <p className={css.error}>Failed to create note. Try again.</p>
           )}
-        </Form>
-      )}
-    </Formik>
+        </form>
+
   );
 }
