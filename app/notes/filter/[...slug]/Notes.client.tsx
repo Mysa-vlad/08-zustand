@@ -21,11 +21,11 @@ export default function NotesClient({ tag }: NotesClientProps) {
 
 
 
-  // const [prevTag, setPrevTag] = useState<string>(tag)
-  // if (tag !== prevTag) {
-  //   setPage(1)
-  //   setPrevTag(tag)
-  // }
+  const [prevTag, setPrevTag] = useState<string>(tag)
+  if (tag !== prevTag) {
+    setPage(1)
+    setPrevTag(tag)
+  }
 
 
   useEffect(() => {
