@@ -28,19 +28,19 @@
 //   )
 // }
 interface Props {
-  params: Promise<{noteId: string}>
+  params: Promise<{id: string}>
 }
 
 export const generateMetadata = async ({params}:Props):Promise<Metadata> =>{
-const {noteId} = await params
-const note = await fetchNoteById(noteId)
+const {id} = await params
+const note = await fetchNoteById(id)
   return {
   title: note.title,
   description: note.content,
   openGraph: {
       title: note.title,
       description:  note.content,
-      url: `https://notehub.com/`,
+      url: `https://notehub.com/notes/${id}`,
       images: [
         {
           url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg',
